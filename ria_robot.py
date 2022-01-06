@@ -195,7 +195,7 @@ def detect(img):
                     # if int(cls)==0:
                     label = f'{names[int(cls)]} {conf:.2f}'
                     plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=2)
-            if (max_c_area>40):
+            if (max_c_area>40000):
                 velocity_message.linear.x = linear_speed_factor / max_c_area
                 Az = (x - im0.shape[1] / 2) * angular_speed_factor
                 integrated_angular_speed += Az
@@ -382,5 +382,3 @@ if __name__ == '__main__':
     # rospy.init_node("yolo_result_out_node", anonymous=True)
 
     rospy.spin()
-
-    
