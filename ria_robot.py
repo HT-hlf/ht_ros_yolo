@@ -36,15 +36,16 @@ from std_msgs.msg import Header
 
 from geometry_msgs.msg import Twist
 integrated_angular_speed=0
-integrated_angular_factor = 0.007;
+integrated_angular_factor = 0.007
 linear_speed_factor = 200
 angular_speed_factor = -0.005
 
 #IMAGE_WIDTH=640
 #IMAGE_HEIGHT=480
-IMAGE_WIDTH=400
-IMAGE_HEIGHT=230
+# IMAGE_WIDTH=400
+# IMAGE_HEIGHT=230
 ros_image = 0
+colors=None
 def image_callback_1(image):
     global ros_image
     #image 应该是一个结构体
@@ -54,9 +55,13 @@ def image_callback_1(image):
     with torch.no_grad():
         detect(ros_image)
 def detect(img):
+    global colors
     save_txt = False
     view_img = False
     save_conf = False
+
+    IMAGE_WIDTH=img.shape[1]
+    IMAGE_HEIGHT=img.shape[0]
 
     project = 'runs/detect'
     name = 'exp'
@@ -90,7 +95,6 @@ def detect(img):
     cudnn.benchmark = True  # set True to speed up constant image size inference
         # dataset = LoadStreams(source, img_size=imgsz)
     # else:
-    save_img = True
     #这个imgsz是可以用main的吗
     #巨坑
     #dataset = LoadImages(img, img_size=imgsz)
@@ -160,11 +164,11 @@ def detect(img):
                 n = (det[:, -1] == c).sum()  # detections per class
                 s += f'{n} {names[int(c)]}s, '  # add to string
 
-            # Write results
-            count_0=0
-            count_1 = 0
-            count_2 = 0
-            count_3 = 0
+            # # Write results
+            # count_0=0
+            # count_1 = 0
+            # count_2 = 0
+            # count_3 = 0
 
             max_c_area = 0
             x = 0
@@ -180,17 +184,17 @@ def detect(img):
 
                 if save_img or view_img:  # Add bbox to image
                     #DIY
-                    if int(cls)==0:
-                        count_0+=1
-                    elif int(cls)==1:
-                        count_1+=1
-                    elif int(cls)==2:
-                        count_2+=1
-                    else:
-                        count_3+=1
-                    # if int(cls)==39:
-                        label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=2)
+                    # if int(cls)==0:
+                    #     count_0+=1
+                    # elif int(cls)==1:
+                    #     count_1+=1
+                    # elif int(cls)==2:
+                    #     count_2+=1
+                    # else:
+                    #     count_3+=1
+                    # if int(cls)==0:
+                    label = f'{names[int(cls)]} {conf:.2f}'
+                    plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=2)
             if (max_c_area>40):
                 velocity_message.linear.x = linear_speed_factor / max_c_area
                 Az = (x - im0.shape[1] / 2) * angular_speed_factor
@@ -278,7 +282,7 @@ def publish_image(imgdata):
     #print(imgdata)
     #image_temp.is_bigendian=True
     image_temp.header=header
-    image_temp.step=921*3
+    image_temp.step=IMAGE_WIDTH*3
     image_pub.publish(image_temp)
     print('publish')
 def loadimg(img):  # 接受opencv图片
