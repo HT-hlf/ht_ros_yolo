@@ -382,3 +382,5 @@ if __name__ == '__main__':
     # rospy.init_node("yolo_result_out_node", anonymous=True)
 
     rospy.spin()
+
+    
